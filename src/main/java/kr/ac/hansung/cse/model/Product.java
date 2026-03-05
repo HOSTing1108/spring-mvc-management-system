@@ -1,0 +1,122 @@
+package kr.ac.hansung.cse.model;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+/**
+ * =====================================================================
+ * Product - JPA 엔티티 클래스 (도메인 모델)
+ * =====================================================================
+ *
+ * JPA(Java Persistence API)는 자바 객체와 관계형 데이터베이스 테이블을
+ * 매핑(ORM: Object-Relational Mapping)하는 표준 명세입니다.
+ * Hibernate가 이 표준을 구현합니다.
+ *
+ * [MVC에서 Model의 역할]
+ * - 비즈니스 데이터를 표현하는 클래스입니다.
+ * - Controller → Service → Repository를 거쳐 DB에서 가져온 데이터가
+ *   이 객체 형태로 View(Thymeleaf)에 전달됩니다.
+ *
+ * [JPA 어노테이션 설명]
+ * @Entity  : 이 클래스가 JPA 관리 대상(엔티티)임을 선언합니다.
+ *            Hibernate가 이 클래스를 DB 테이블과 매핑합니다.
+ * @Table   : 매핑할 DB 테이블 이름을 지정합니다. (생략 시 클래스 이름 사용)
+ */
+@Entity
+@Table(name = "product")
+public class Product {
+
+    /**
+     * @Id        : 기본 키(Primary Key) 필드 지정
+     * @GeneratedValue : 기본 키 생성 전략 지정
+     *   - GenerationType.IDENTITY : DB의 AUTO_INCREMENT를 사용합니다.
+     *     INSERT 후 DB가 생성한 키 값을 Hibernate가 가져옵니다.
+     *   - GenerationType.SEQUENCE : 시퀀스 객체 사용 (Oracle 등)
+     *   - GenerationType.AUTO     : DB 방언에 따라 자동 선택
+     * @Column    : 매핑할 DB 컬럼 정보 지정
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    /**
+     * 상품명
+     * nullable = false → DB에서 NOT NULL 제약 조건
+     * length = 100    → VARCHAR(100)
+     */
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
+
+    /**
+     * 카테고리 (예: 전자제품, 식품, 의류 등)
+     */
+    @Column(name = "category", length = 50)
+    private String category;
+
+    /**
+     * 가격
+     * BigDecimal: 금액처럼 정밀한 소수 계산이 필요할 때 사용합니다.
+     *   - double/float는 부동소수점 오차가 발생하므로 금액에 부적합합니다.
+     *     예) 0.1 + 0.2 = 0.30000000000000004 (double 오차)
+     *   - BigDecimal은 정확한 10진수 연산을 보장합니다.
+     *   - Hibernate 6.x: double 타입에는 scale 지정 불가 → BigDecimal 사용 필수
+     * precision = 10 : 전체 자릿수 (정수부 8자리 + 소수부 2자리)
+     * scale = 2      : 소수점 이하 자릿수
+     * → DB에서 DECIMAL(10, 2) 타입으로 매핑됩니다.
+     */
+    @Column(name = "price", precision = 10, scale = 2)
+    private BigDecimal price;
+
+    /**
+     * 상품 설명 (긴 텍스트)
+     * @Lob: Large Object를 의미하며 TEXT, CLOB 등으로 매핑됩니다.
+     */
+    @Lob
+    @Column(name = "description")
+    private String description;
+
+    // ─────────────────────────────────────────────────────────────────
+    // JPA 기본 요구사항: 매개변수 없는 기본 생성자 (접근 제한자: public 또는 protected)
+    // Hibernate가 DB에서 데이터를 읽어올 때 기본 생성자로 객체를 생성합니다.
+    // ─────────────────────────────────────────────────────────────────
+    protected Product() {}
+
+    /**
+     * 새 Product를 생성할 때 사용하는 생성자
+     * id는 DB가 자동 생성하므로 포함하지 않습니다.
+     */
+    public Product(String name, String category, BigDecimal price, String description) {
+        this.name = name;
+        this.category = category;
+        this.price = price;
+        this.description = description;
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Getter / Setter
+    // JPA 엔티티는 필드에 직접 접근하거나 getter/setter를 통해 접근합니다.
+    // Thymeleaf에서 th:text="${product.name}" 호출 시 getName()이 실행됩니다.
+    // ─────────────────────────────────────────────────────────────────
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public BigDecimal getPrice() { return price; }
+    public void setPrice(BigDecimal price) { this.price = price; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    @Override
+    public String toString() {
+        return "Product{id=%d, name='%s', category='%s', price=%s}"
+                .formatted(id, name, category, price);
+    }
+}
