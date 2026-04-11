@@ -102,5 +102,9 @@
         </form>
     </div>
 
+    <footer style="margin-top:40px; padding:10px; border-top:1px solid #ccc; color:#555; font-size:0.9em;">
+        <p th:text="${'실습 수행 일시: ' + #temporals.format(#temporals.createNow(), 'yyyy년 MM월 dd일 HH:mm:ss') + '  |  학번: 2171191  |  성명: 노진수'}"></p>
+    </footer>
+
 </body>
 </html>
