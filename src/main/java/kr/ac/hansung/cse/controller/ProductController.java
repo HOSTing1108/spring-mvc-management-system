@@ -55,9 +55,13 @@ public class ProductController {
                                @RequestParam(required = false) Long categoryId,
                                Model model) {
         List<Product> products;
-        if (keyword != null && !keyword.isBlank()) {
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        boolean hasCategoryId = categoryId != null;
+        if (hasKeyword && hasCategoryId) {
+            products = productService.searchByNameAndCategory(keyword, categoryId);
+        } else if (hasKeyword) {
             products = productService.searchByName(keyword);
-        } else if (categoryId != null) {
+        } else if (hasCategoryId) {
             products = productService.searchByCategory(categoryId);
         } else {
             products = productService.getAllProducts();

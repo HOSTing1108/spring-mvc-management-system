@@ -147,4 +147,13 @@ public class ProductRepository {
                 .setParameter("cid", categoryId)
                 .getResultList();
     }
+
+    public List<Product> findByNameContainingAndCategoryId(String keyword, Long categoryId) {
+        return entityManager.createQuery(
+                "SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.name LIKE :keyword AND p.category.id = :cid ORDER BY p.id ASC",
+                Product.class)
+                .setParameter("keyword", "%" + keyword + "%")
+                .setParameter("cid", categoryId)
+                .getResultList();
+    }
 }
